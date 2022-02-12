@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mychatapp/widgets/messages.dart';
+import 'package:mychatapp/widgets/new_message.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -7,43 +10,50 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: StreamBuilder(
-          stream: FirebaseFirestore.instance
-              .collection('chats/EfHTYluImTGt4PjxZ05q/messages')
-              .snapshots(),
-          builder: (ctx, AsyncSnapshot<QuerySnapshot> snap) {
-            if (snap.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            final documents = snap.data!.docs;
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: documents.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+      appBar: AppBar(
+          title: const Text(
+            'Lets Chat',
+          ),
+          centerTitle: true,
+          actions: [
+            DropdownButton(
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              items: [
+                DropdownMenuItem(
+                  child: SizedBox(
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.exit_to_app,
+                          color: Colors.black,
+                        ),
+                        SizedBox(
+                          width: 7,
+                        ),
+                        Text('Logout'),
+                      ],
+                    ),
                   ),
-                  child: Text(documents[index]['text'].toString()),
-                );
+                  value: 'Logout',
+                ),
+              ],
+              onChanged: (String? value) {
+                if (value == 'Logout') {
+                  FirebaseAuth.instance.signOut();
+                }
               },
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          FirebaseFirestore.instance
-              .collection('chats/EfHTYluImTGt4PjxZ05q/messages')
-              .add({'text': 'Hello again'});
-        },
-        child: const Icon(Icons.add),
-      ),
+            ),
+          ]),
+      body: SafeArea(
+          child: Column(
+        children: const [
+          Expanded(child: Messages()),
+          NewMessage(),
+        ],
+      )),
     );
   }
 }
