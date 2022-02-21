@@ -33,15 +33,18 @@ class Messages extends StatelessWidget {
               }
               final chatDocs = snap.data!.docs;
 
-              print('future ---${futuresnap.data!.uid}');
-
               return ListView.builder(
                   reverse: true,
                   itemCount: chatDocs.length,
                   itemBuilder: (context, index) {
+                    // print('future ---${ValueKey(chatDocs[index].id)}');
                     return MessageBubble(
-                        isMe: chatDocs[index]['UserID'] == futuresnap.data!.uid,
-                        message: chatDocs[index]['text'].toString());
+                      isMe: chatDocs[index]['UserID'] == futuresnap.data!.uid,
+                      message: chatDocs[index]['text'].toString(),
+                      key: ValueKey(chatDocs[index].id),
+                      username: chatDocs[index]['userName'],
+                      userImage: chatDocs[index]['userImage'],
+                    );
                   });
             });
       },

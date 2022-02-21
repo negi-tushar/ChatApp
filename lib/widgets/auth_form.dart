@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:mychatapp/widgets/user_image.dart';
 
 class AuthForm extends StatefulWidget {
   const AuthForm({Key? key, required this.submitFn, required this.isLoading})
@@ -7,6 +10,7 @@ class AuthForm extends StatefulWidget {
   final void Function(
     String email,
     String uname,
+    File image,
     String password,
     bool isLogin,
   ) submitFn;
@@ -22,14 +26,38 @@ class _AuthFormState extends State<AuthForm> {
   var _userEmail = '';
   var _username = '';
   var _userPassword = '';
+  var _fetchedImage;
+
+  void setImage(File image) {
+    _fetchedImage = image;
+  }
 
   void _trySubmit() {
+    //  print(_fetchedImage);
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
+    if (_fetchedImage == null && _isLogin) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text(
+          'Please select a Picture!',
+          textAlign: TextAlign.center,
+        ),
+        duration: const Duration(seconds: 1),
+        backgroundColor: Colors.red.shade500,
+      ));
+      return;
+    }
+
     if (isValid) {
       _formKey.currentState!.save();
       // print(_userPassword);
-      widget.submitFn(_userEmail, _username, _userPassword, _isLogin);
+      widget.submitFn(
+        _userEmail,
+        _username,
+        _fetchedImage,
+        _userPassword,
+        _isLogin,
+      );
     }
   }
 
@@ -46,8 +74,9 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (_isLogin) UserImage(pickedImageFn: setImage),
                   TextFormField(
-                    key: ValueKey('email'),
+                    key: const ValueKey('email'),
                     validator: (value) {
                       if (!value!.contains('@') && value.isEmpty) {
                         return 'Please enter valid email address';
