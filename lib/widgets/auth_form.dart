@@ -94,7 +94,10 @@ class _AuthFormState extends State<AuthForm> {
                   ),
                   if (_isLogin)
                     TextFormField(
-                      key: ValueKey('uname'),
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      textCapitalization: TextCapitalization.none,
+                      key: const ValueKey('uname'),
                       validator: (value) {
                         if (value!.length < 3) {
                           return 'Please enter valid UserName';
